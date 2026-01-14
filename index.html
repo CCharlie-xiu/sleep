@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>极简声疗 · 沉浸交互</title>
+
+<style>
+:root {
+  --bg-color: #2D1B1B;
+  --accent-color: #FF8A65;
+  --text-main: rgba(255,255,255,.65);
+  --text-sub: rgba(255,255,255,.55);
+  --card-bg: rgba(255,255,255,.08);
+  --transition: .6s;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; font-family:-apple-system,system-ui,sans-serif; background:#000; }
+
+.app {
+  height:100%;
+  background: var(--bg-color);
+  transition: background var(--transition);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* --- 新增：顶部倒计时区 --- */
+.countdown-container {
+  position: absolute;
+  top: 145px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+.countdown-container.show { opacity: 1; }
+.countdown-time {
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+.countdown-label {
+  font-size: 11px;
+  color: var(--accent-color); /* 随主题变色 */
+  letter-spacing: 3px;
+  margin-top: -2px;
+  transition: color var(--transition);
+}
+
+/* 顶部提示 */
+.top-hint { text-align:center; font-size:10px; color:var(--text-sub); letter-spacing:3px; padding-top:16px; }
+
+/* 推荐区 */
+.recommend-section { margin-top:18px;  }
+.recommend-title { font-size:13px; color:var(--text-sub); margin-bottom:10px;padding:0 20px; }
+.horizational::-webkit-scrollbar{display:none}
+.horizational {
+    overflow: auto;
+    height: 72px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 20px;
+}
+.horizontal-scroll { display:flex; gap:12px;scrollbar-width:none; }
+.horizontal-scroll::-webkit-scrollbar { display:none; }
+.recommend-card {
+  flex:0 0 145px; background:var(--card-bg); border-radius: 60% 60% 20% 20% / 20% 60% 20% 60%;
+  padding:10px; display:flex; align-items:flex-end; height: 56px; gap:8px;
+  transition: all 0.3s ease-in-out;
+}
+.recommend-card.active {
+  transform: scale(1.05);
+  transition: all 0.3s ease-in-out;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+.card-icon { width:45px; height:56px;  flex-shrink: 0; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; display:flex; align-items:center; justify-content:center; font-size: 20px; background: linear-gradient(to top, transparent, #f0f8ff 30%, #f0f8ff);}
+.card-text { font-size:14px; color:var(--text-main); line-height: 56px; }
+
+/* 信息区 */
+.info-panel { margin-top:60px; padding:0 30px; pointer-events:none; }
+.current-name { font-size:48px; font-weight:800; color:var(--text-sub); }
+.current-desc { margin-top:6px; font-size:13px; color:var(--text-sub); max-width:240px; line-height:1.4; }
+
+/* 声音列表列表 */
+.list-viewport {
+  display:flex; justify-content:flex-end; padding-right:20px;
+  mask-image:linear-gradient(to bottom,transparent,black 20%,black 80%,transparent);
+  height: 520px; margin-top: 20px;
+}
+.sound-list { width:85%; pointer-events:auto;transition: transform .5s cubic-bezier(.4,0,.2,1);
+    will-change: transform; }
+.sound-item {
+  background:var(--card-bg); border-radius:12px; padding:12px 15px;
+  display:flex; align-items:center; gap:12px; margin-bottom:14px;
+  opacity:.25; transform:scale(.92); transition:.45s;position: relative;
+}
+.sound-item.active {
+  opacity:1; transform:scale(1.05); border:1px solid var(--accent-color);
+  background:rgba(255,255,255,.12); color: #fff;
+  right: 20px;
+  background-image: url(./images/Gemini_Generated_Image_g9www3g9www3g9ww.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.sound-item.preactive {
+  transform:scale(1); 
+  right: 12px;
+}
+.sound-item.nextactive {
+  opacity:0.8; transform:scale(1); 
+  right: 12px;
+}
+
+.vinyl { width:38px; height:38px; background:#111; border-radius:50%; display:flex; justify-content:center; align-items:center; }
+.vinyl::after { content:''; width:8px; height:8px; background:var(--accent-color); border-radius:50%; transition: background 0.6s; }
+
+.wave-view { flex:1; height:18px; display:flex; gap:3px; align-items: center; }
+.wave-view span { flex:1; height:30%; background:rgba(255,255,255,.2); transition:.3s; }
+.active .wave-view span { background:var(--accent-color); }
+
+/* --- 底部控制 & 定时器 --- */
+.bottom-controls { position:absolute; left:0; right:0; bottom:40px; display:flex; justify-content: center; align-items:center; }
+
+.play-btn {
+  width:68px; height:68px; background:var(--accent-color); border-radius:50%;
+  display: flex; justify-content: center; align-items: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: transform 0.2s, background 0.6s;
+}
+.play-btn:active { transform: scale(0.9); }
+
+/* 右侧定时器容器 */
+.setting-bar { position: absolute; left: 25px; bottom: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 80px; }
+.setting-bar-left {
+    display:flex;
+  flex-direction: column;
+  align-items:center;
+  gap:20px;
+  font-size:14px;
+  color:var(--text-sub);
+  position: absolute;
+  right: 25px;
+  bottom: 0px;
+}
+.timer-container { position: relative; width: 30px; height: 180px; display: flex; justify-content: center; touch-action: none; }
+
+.timer-track { width: 6px; height: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; position: relative; overflow: hidden; }
+
+.timer-progress {
+  position: absolute; bottom: 0; width: 100%; height: 0%;
+  background: linear-gradient(to top, rgba(255,255,255,0.1), var(--accent-color));
+  transition: height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.timer-handle {
+  position: absolute; left: 50%; bottom: 0%; width: 20px; height: 20px;
+  background: #fff; border: 4px solid #111; border-radius: 50%;
+  transform: translate(-50%, 50%); z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  transition: bottom 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.timer-tooltip {
+  position: absolute; right: -68px; bottom: 0%;
+  background: var(--accent-color); color: #fff;
+  padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold;
+  transform: translateY(50%); white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: bottom 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), background 0.6s;
+}
+.timer-tooltip::after {
+  content: ""; position: absolute; left: -5px; top: 50%; transform: translateY(-50%);
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-right: 6px solid var(--accent-color); transition: border-left-color 0.6s;
+}
+
+.fade-text {
+  transition:
+    opacity .45s cubic-bezier(.4,0,.2,1),
+    transform .45s cubic-bezier(.4,0,.2,1);
+}
+
+.fade-text.out {
+  opacity: 0;
+  transform: translateX(-152px);
+}
+.fade-text.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-text.enter {
+  opacity: 0;
+  transform: translateX(152px);
+}
+#curName {
+  transition-duration: .35s;
+}
+
+#curDesc {
+  transition-duration: .35s;
+  transition-delay: .08s;
+}
+.timer-badge { font-size: 10px; color: var(--text-sub); letter-spacing: 1px; margin-top: 12px; }
+
+.momentBackText {
+    position: absolute;
+    height: 100vh;
+    width: 200px;
+    right: -60px;
+    text-align: center;
+    font-size: 120px;
+    font-weight: 600;
+    user-select: none;
+    pointer-events: none;
+    color: var(--text-sub);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    display: flex;
+    justify-content: center;
+    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-image: linear-gradient(to left, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 100%);
+    mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+}
+.momentBackText span {
+    display: block;
+}
+
+/* 图标 */
+.play-icon { width: 0; height: 0; border-style: solid; border-width: 12px 0 12px 20px; border-color: transparent transparent transparent #fff; margin-left: 5px; }
+.pause-icon { display: none; width: 18px; height: 24px; border-left: 6px solid #fff; border-right: 6px solid #fff; }
+.playing .play-icon { display: none; }
+.playing .pause-icon { display: block; }
+</style>
+</head>
+
+<body>
+<div class="app" id="app">
+
+  <div class="top-hint">上下滑动切换声音</div>
+
+  <div id="countDownDisplay" class="countdown-container">
+    <span class="countdown-time">00:00</span>
+    <span class="countdown-label">REMAINING TIME</span>
+  </div>
+
+  <div class="recommend-section">
+    <div class="recommend-title">为你推荐</div>
+    <div class="horizational">
+        <div class="horizontal-scroll">
+          <div class="recommend-card"><div class="card-icon">🔥</div><div class="card-text">万物自然声</div></div>
+          <div class="recommend-card"><div class="card-icon">🌧</div><div class="card-text">纯净频率音</div></div>
+          <div class="recommend-card"><div class="card-icon">📖</div><div class="card-text">空灵冥想曲</div></div>
+          <div class="recommend-card"><div class="card-icon">🌌</div><div class="card-text">柔和器乐音</div></div>
+          <div class="recommend-card"><div class="card-icon">🧩</div><div class="card-text">意境解压场</div></div>
+        </div>
+    </div>
+  </div>
+
+  <div class="info-panel">
+    <p style="color:var(--accent-color); transition: color 0.6s;">● 正在播放</p>
+    <div class="current-name fade-text" id="curName">营火</div>
+    <div class="current-desc fade-text" id="curDesc"></div>
+  </div>
+
+  <div class="list-viewport" id="listViewport">
+    <div class="sound-list" id="soundList"></div>
+  </div>
+
+  <div class="bottom-controls">
+
+    <div class="setting-bar-left">
+       <div class="timer-badge">甜菜.风铃科技™</div>
+    </div>
+
+    <div class="play-btn" id="playBtn">
+      <div class="play-icon"></div>
+      <div class="pause-icon"></div>
+    </div>
+
+    <div class="setting-bar">
+      <div class="timer-container" id="timerContainer">
+        <div class="timer-tooltip" id="timerTooltip">关闭</div>
+        <div class="timer-track">
+          <div class="timer-progress" id="timerProgress"></div>
+        </div>
+        <div class="timer-handle" id="timerHandle"></div>
+      </div>
+      <div class="timer-badge" id="timerBadge">定时关闭</div>
+    </div>
+  </div>
+  <div class="momentBackText" id="momentBackText"></div>
+</div>
+<script>
+    /******************************
+     * 数据与音效资源
+     ******************************/
+    let sounds = [
+      { name: '营火', desc: '温暖的木柴火焰声，轻轻劈啪响，带来冬夜温馨感', bg: '#2B1610', accent: '#FF7043', key: 'wind' },
+    ]
+
+    const allList = [
+        { name: '营火', desc: '温暖的木柴火焰声，轻轻劈啪响，带来冬夜温馨感', bg: '#2B1610', accent: '#FF7043', key: 'wind' },
+    ] 
+
+    const recommendList = [
+      { name: '万物自然声', keyvalue: [
+        { name: '雨林', desc: '湿润宁静的森林雨声，细雨落叶间，洗涤心灵烦躁感', bg: '#0F2A1D', accent: '#6FCF97', key: 'birds' },
+        { name: '深海', desc: '低频安抚深度睡眠，海水涌动声，仿佛潜入宁静海底', bg: '#050B1E', accent: '#1BCEDB', key: 'chocolate' },
+        { name: '极光', desc: '北欧夜空冥想，星光闪烁下，心灵漂浮于极光之中', bg: '#0E1028', accent: '#9BFFEC', key: 'ear' },
+      ] },
+      { name: '纯净频率音', keyvalue: [
+        { name: '风铃', desc: '清脆悦耳的风铃声，微风拂过窗前，带来夏日清凉感', bg: '#101820', accent: '#FFD166', key: 'paper' },
+        { name: '鸟鸣', desc: '清晨自然鸟叫声，阳光洒落林间，唤醒轻柔的早晨', bg: '#1A2E3B', accent: '#7ED957', key: 'birds' },
+        { name: '溪流', desc: '潺潺溪水声，山间流水奔流，沁人心脾静心安神', bg: '#081A2F', accent: '#7ABEFF', key: 'paper' },
+      ] },
+      { name: '空灵冥想曲', keyvalue: [
+        { name: '虫鸣', desc: '夏日昆虫鸣叫，夜晚静谧中，虫声伴随入眠深处', bg: '#070B18', accent: '#FF8C42', key: 'birds' },
+        { name: '海浪', desc: '宁静海滩波浪声，海水轻拍礁石，心随浪花平静', bg: '#081226', accent: '#4FC3F7', key: 'chocolate' },
+        { name: '钟摆', desc: '沉稳机械钟摆声，规律摆动中，带来时间的安心感', bg: '#0E0E0E', accent: '#A78BFA', key: 'ear' },
+      ] },
+      { name: '柔和器乐音', keyvalue: [
+        { name: '沙漏', desc: '古老沙漏漏沙声，细沙缓落，象征光阴流逝宁静', bg: '#1A140D', accent: '#E6C79C', key: 'wind' },
+        { name: '烛光', desc: '温馨摇曳烛光声，火焰轻晃，夜晚的柔光与暖意感', bg: '#140A06', accent: '#FFB703', key: 'chocolate' },
+        { name: '雨滴', desc: '滴答雨滴声，窗外雨声点点，静谧时光缓缓流淌', bg: '#0A1322', accent: '#8ECDF4', key: 'paper' },
+      ] },
+      { name: '意境解压场', keyvalue: [
+        { name: '心跳', desc: '沉稳心跳声，仿佛身体节奏，带来安全与平静感', bg: '#1B0D12', accent: '#E63946', key: 'ear' },
+        { name: '钟表', desc: '优雅机械钟表声，滴答作响，提醒时间的缓慢流动', bg: '#121212', accent: '#C7B7A3', key: 'wind' },
+        { name: '铃铛', desc: '清脆悦耳的铃铛声，轻敲响起，带来清新愉悦感受', bg: '#0E0E0E', accent: '#FFD166', key: 'chocolate' }
+      ] }
+    ]
+    
+    const asmrMap = {
+      wind: ['asmr/wind1.wav','asmr/wind2.wav','asmr/wind3.wav','asmr/wind4.wav'],
+      birds: ['asmr/birds1.wav','asmr/birds2.wav','asmr/birds3.wav','asmr/birds4.wav'],
+      chocolate: ['asmr/chocolate1.wav','asmr/chocolate2.wav','asmr/chocolate3.wav','asmr/chocolate4.wav'],
+      ear: ['asmr/ear1.wav','asmr/ear2.wav','asmr/ear3.wav','asmr/ear4.wav'],
+      paper: ['asmr/paper1.wav','asmr/paper2.wav','asmr/paper3.wav','asmr/paper4.wav'],
+    }
+    
+    /******************************
+     * 全局状态
+     ******************************/
+    let index = 0;
+    let isPlaying = false;
+    let textAnimating = false;
+    
+    const ITEM_HEIGHT = 78
+    const CENTER_OFFSET = 2
+    const list = document.getElementById('soundList')
+    const itemEls = []
+    
+    let audio = new Audio()
+    audio.loop = false
+    audio.volume = 0.8
+    let currentList = []
+    let currentAudioIndex = 0
+    let currentType = null
+    // 事件绑定
+    let isDragging = false
+    const curName = document.getElementById('curName')
+    const curDesc = document.getElementById('curDesc')
+    const playBtn = document.getElementById('playBtn')
+    
+    /******************************
+     * 文本动画
+     ******************************/
+     let animateTimeouts = []
+     let animateFrame = null
+     function animateTexts(pairs) {
+       animateTimeouts.forEach(t => clearTimeout(t))
+       animateTimeouts = []
+       if (animateFrame) cancelAnimationFrame(animateFrame)
+       animateFrame = null
+       pairs.forEach(({ el }) => {
+         el.classList.remove('out', 'in', 'enter')
+         void el.offsetHeight
+         el.classList.add('out')
+       })
+       animateTimeouts.push(setTimeout(() => {
+         pairs.forEach(({ el, text }, i) => {
+           el.textContent = text
+           el.classList.remove('out')
+           el.classList.add('enter')
+         })
+         animateFrame = requestAnimationFrame(() => {
+           pairs.forEach(({ el }) => {
+             el.classList.remove('enter')
+             el.classList.add('in')
+           })
+           animateTimeouts.push(setTimeout(() => {
+             animateTimeouts = []
+             animateFrame = null
+           }, 500))
+         })
+       }, 300))
+     }
+
+    /******************************
+     * 顶部分类切换
+     ******************************/
+    function initRecommend() {
+        // 1. 获取所有分类卡片（注意类名选择器要有 . ）
+        const recommendCards = document.querySelectorAll('.recommend-card');
+        const momentBackText = document.getElementById('momentBackText');
+        recommendCards.forEach((card, i) => {
+            card.addEventListener('click', function() {
+                const wasActive = card.classList.contains('active')
+                recommendCards.forEach(c => c.classList.remove('active'))
+                const content = this.innerHTML;
+                list.innerHTML = ''
+                index = 0
+                itemEls.length = 0
+                momentBackText.style.opacity = 1
+                    momentBackText.style.transform = 'translateX(0px)'
+                if (wasActive) {
+                    sounds = allList;
+                    initList();
+                    momentBackText.style.opacity = 0
+                    momentBackText.style.transform = 'translateX(60px)'
+                    momentBackText.style.transition = 'all 0.6s cubic-bezier(.4,0,.2,1)'
+                    return;
+                }
+                card.classList.add('active');
+                const categoryName = this.querySelector('.card-text').innerText;
+                showMomentBackText(categoryName)
+                console.log(`点击了第 ${i + 1} 个分类:`, categoryName);
+                sounds = recommendList[i].keyvalue;
+                initList();
+            });
+            card.style.cursor = 'pointer';
+        });
+    }
+
+    function showMomentBackText(text) {
+        const momentBackText = document.getElementById('momentBackText');
+        momentBackText.innerHTML = ''; // 清空
+        const chars = text.split(''); // 分割成每个字符
+        chars.forEach((ch, i) => {
+            const span = document.createElement('span');
+            span.innerText = ch;
+            span.style.display = 'block';
+            span.style.opacity = 0;
+            span.style.transition = 'opacity 0.1s ease, transform 0.6s cubic-bezier(.4,0,.2,1)';
+            span.style.transform = 'translateX(60px)'; // 初始位置上移
+    
+            momentBackText.appendChild(span);
+    
+            // 延迟逐个显示
+            setTimeout(() => {
+                span.style.opacity = 1;
+                span.style.transform = 'translateY(0)';
+            }, i * 100); // 每个字符延迟 100ms
+        });
+    }
+
+    /******************************
+     * 列表渲染与状态更新
+     ******************************/
+    function initList() {
+      sounds.forEach((s, i) => {
+        const el = document.createElement('div')
+        const waves = Array.from({ length: 48 })
+          .map(() => `<span style="height:${30 + Math.random()*60}%"></span>`)
+          .join('')
+        el.className = 'sound-item'
+        el.innerHTML = `
+          <div class="vinyl"></div>
+          <div class="title">${String(i+1).padStart(2,'0')} ${s.name}</div>
+          <div class="wave-view">${waves}</div>
+        `
+        el.onclick = () => {
+          index = i
+          update()
+          if (!isPlaying) {
+            isPlaying = true
+            playBtn.classList.add('playing')
+          }
+        }
+        list.appendChild(el)
+        itemEls.push(el)
+      })
+      update()
+    }
+    
+    function updateListState() {
+      const offset = (index - CENTER_OFFSET) * ITEM_HEIGHT
+      list.style.transform = `translateY(${-offset}px)`
+    
+      itemEls.forEach((el, i) => {
+        el.classList.remove('active', 'preactive', 'nextactive')
+        if (i === index) el.classList.add('active')
+        else if (i === index - 1) el.classList.add('preactive')
+        else if (i === index + 1) el.classList.add('nextactive')
+      })
+    }
+    
+    /******************************
+     * 更新界面与音效
+     ******************************/
+    function update() {
+      const s = sounds[index]
+      document.documentElement.style.setProperty('--bg-color', s.bg)
+      document.documentElement.style.setProperty('--accent-color', s.accent)
+      animateTexts([{ el: curName, text: s.name }, { el: curDesc, text: s.desc }])
+      updateListState()
+      if (isPlaying) {
+        playAsmr(s.key)
+      }
+    }
+    
+    /******************************
+     * ASMR 播放逻辑
+     ******************************/
+    function playAsmr(type) {
+      if (!asmrMap[type]) return
+      if (type !== currentType) {
+        currentType = type
+        currentList = asmrMap[type]
+        currentAudioIndex = 0
+      }
+      playCurrent()
+    }
+    
+    function playCurrent() {
+      const src = currentList[currentAudioIndex]
+      if (!src) return
+      audio.src = src
+      audio.currentTime = 0
+      audio.play().catch(err => console.warn('播放失败', err))
+    }
+    
+    // 播放完自动切下一个，淡入淡出效果
+    audio.addEventListener('ended', () => {
+      if (!isPlaying || isDragging) return
+      fadeToNext()
+    })
+    
+    function fadeToNext() {
+      let v = audio.volume
+      const fadeOut = setInterval(() => {
+        v -= 0.05
+        if (v <= 0) {
+          clearInterval(fadeOut)
+          audio.volume = 0
+          currentAudioIndex = (currentAudioIndex + 1) % currentList.length
+          playCurrent()
+          fadeIn()
+        } else {
+          audio.volume = v
+        }
+      }, 50)
+    }
+    function fadeIn() {
+      let v = 0
+      const fadeIn = setInterval(() => {
+        v += 0.05
+        if (v >= 0.8) {
+          audio.volume = 0.8
+          clearInterval(fadeIn)
+        } else {
+          audio.volume = v
+        }
+      }, 50)
+    }
+    
+    /******************************
+     * 播放按钮
+     ******************************/
+    playBtn.onclick = () => {
+      isPlaying = !isPlaying
+      playBtn.classList.toggle('playing', isPlaying)
+      if (isPlaying) playAsmr(sounds[index].key)
+      else audio.pause()
+    }
+    /******************************
+     * 滑动切换音效
+     ******************************/
+    const listViewport = document.getElementById('listViewport')
+    let startY = 0
+    listViewport.addEventListener('touchstart', isDragging ? null : e => startY = e.touches[0].clientY)
+    listViewport.addEventListener('touchend', isDragging ? null : e => {
+      const dy = startY - e.changedTouches[0].clientY
+      if (Math.abs(dy) > 70) {
+        index = (index + (dy > 0 ? 1 : -1) + sounds.length) % sounds.length
+        update()
+      }
+    })
+
+    /***********************
+     * 定时器逻辑
+     ***********************/
+    const timerContainer = document.getElementById('timerContainer')
+    const timerHandle = document.getElementById('timerHandle')
+    const timerProgress = document.getElementById('timerProgress')
+    const timerTooltip = document.getElementById('timerTooltip')
+    const timerBadge = document.getElementById('timerBadge')
+    const countDownDisplay = document.getElementById('countDownDisplay')
+    const timeDisplay = countDownDisplay.querySelector('.countdown-time')
+    const timeSteps = [0, 3, 5, 15, 30]
+    let countdownInterval = null
+    let remainingSeconds = 0
+    function updateTimerUI(percent, mins) {
+      timerHandle.style.bottom = `${percent}%`
+      timerProgress.style.height = `${percent}%`
+      timerTooltip.style.bottom = `${percent}%`
+      timerTooltip.innerText = mins === 0 ? "关闭" : `${mins} 分钟`
+      timerBadge.innerText = mins === 0 ? "定时关闭" : `定时 ${mins}min`
+    }
+    function startCountdown(mins) {
+      clearInterval(countdownInterval)
+      if (mins === 0) {
+        countDownDisplay.classList.remove('show')
+        return
+      }
+      remainingSeconds = mins * 60
+      countDownDisplay.classList.add('show')
+      updateTimeDisplay()
+      countdownInterval = setInterval(() => {
+        remainingSeconds--
+        if (remainingSeconds <= 0) {
+          clearInterval(countdownInterval)
+          isPlaying = false
+          playBtn.classList.remove('playing')
+          audio.pause()
+          countDownDisplay.classList.remove('show')
+        }
+        updateTimeDisplay()
+      }, 1000)
+    }
+    function updateTimeDisplay() {
+      const m = Math.floor(remainingSeconds / 60)
+      const s = remainingSeconds % 60
+      timeDisplay.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    }
+    function handleTimerMove(clientY) {
+      const rect = timerContainer.getBoundingClientRect()
+      let percent = ((rect.bottom - clientY) / rect.height) * 100
+      percent = Math.max(0, Math.min(100, percent))
+      const stepIdx = Math.round((percent / 100) * (timeSteps.length - 1))
+      const snapPercent = (stepIdx / (timeSteps.length - 1)) * 100
+      const mins = timeSteps[stepIdx]
+      updateTimerUI(snapPercent, mins)
+      return mins
+    }
+    const onStart = (e) => { isDragging = true; handleTimerMove(e.touches ? e.touches[0].clientY : e.clientY) }
+    const onMove = (e) => { if (isDragging) handleTimerMove(e.touches ? e.touches[0].clientY : e.clientY) }
+    const onEnd = (e) => {
+      if (isDragging) {
+        const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY
+        const mins = handleTimerMove(y)
+        startCountdown(mins)
+        isDragging = false
+      }
+    }
+    timerContainer.addEventListener('mousedown', onStart)
+    timerTooltip.addEventListener('mousemove', onMove)
+    timerTooltip.addEventListener('mouseup', onEnd)
+    timerContainer.addEventListener('touchstart', onStart, {passive:false})
+    timerTooltip.addEventListener('touchmove', onMove, {passive:false})
+    timerTooltip.addEventListener('touchend', onEnd)
+    
+    /******************************
+     * 初始启动
+     ******************************/
+    initList()
+    initRecommend()
+    </script>
+</body>
+</html>
