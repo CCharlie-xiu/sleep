@@ -375,11 +375,11 @@ html, body { height:100%; overflow:hidden; font-family:-apple-system,system-ui,s
     ]
     
     const asmrMap = {
-      wind: ['asmr/wind1.ogg','asmr/wind2.ogg','asmr/wind3.wav','asmr/wind4.ogg'],
-      birds: ['asmr/birds1.ogg','asmr/birds2.wav','asmr/birds3.wav','asmr/birds4.wav'],
-      chocolate: ['asmr/chocolate1.ogg','asmr/chocolate2.ogg','asmr/chocolate3.ogg','asmr/chocolate4.ogg'],
-      ear: ['asmr/ear1.wav','asmr/ear2.wav','asmr/ear3.wav','asmr/ear4.wav'],
-      paper: ['asmr/paper1.ogg','asmr/paper2.ogg','asmr/paper3.ogg','asmr/paper4.ogg'],
+      wind: ['music/wind1.ogg','music/wind2.ogg','music/wind3.wav','music/wind4.ogg'],
+      birds: ['music/birds1.ogg','music/birds2.wav','music/birds3.wav','music/birds4.wav'],
+      chocolate: ['music/chocolate1.ogg','music/chocolate2.ogg','music/chocolate3.ogg','music/chocolate4.ogg'],
+      ear: ['music/ear1.wav','music/ear2.wav','music/ear3.wav','music/ear4.wav'],
+      paper: ['music/paper1.ogg','music/paper2.ogg','music/paper3.ogg','music/paper4.ogg'],
     }
     
     /******************************
@@ -564,7 +564,7 @@ html, body { height:100%; overflow:hidden; font-family:-apple-system,system-ui,s
     }
     
     /******************************
-     * ASMR 播放逻辑
+     * music 播放逻辑
      ******************************/
     function playAsmr(type) {
       if (!asmrMap[type]) return

@@ -1,0 +1,113 @@
+{
+  "id": "dh-store-review",
+  "displayName": "iOS应用内评分 打开应用市场插件",
+  "version": "1.0.1",
+  "description": "一个用于uni-app的iOS打开应用市场和评分，支持应用内评分弹窗，跳转到App Store",
+  "keywords": [
+    "应用评分",
+    "ios评分",
+    "评论",
+    "评分",
+    "AppStore"
+  ],
+  "repository": "",
+  "engines": {
+    "HBuilderX": "^3.1.0",
+    "uni-app": "^4.81",
+    "uni-app-x": "^4.81"
+  },
+  "dcloudext": {
+    "type": "sdk-js",
+    "sale": {
+      "regular": {
+        "price": "0.00"
+      },
+      "sourcecode": {
+        "price": "0.00"
+      }
+    },
+    "contact": {
+      "qq": ""
+    },
+    "declaration": {
+      "ads": "无",
+      "data": "无",
+      "permissions": "无"
+    },
+    "npmurl": "",
+    "darkmode": "√",
+    "i18n": "√",
+    "widescreen": "√"
+  },
+  "uni_modules": {
+    "dependencies": [],
+    "encrypt": [],
+    "platforms": {
+      "cloud": {
+        "tcb": "√",
+        "aliyun": "√",
+        "alipay": "√"
+      },
+      "client": {
+        "uni-app": {
+          "vue": {
+            "vue2": "√",
+            "vue3": "√"
+          },
+          "web": {
+            "safari": "x",
+            "chrome": "x"
+          },
+          "app": {
+            "vue": "√",
+            "nvue": "√",
+            "android": {
+              "extVersion": "1.0.0",
+              "minVersion": ""
+            },
+            "ios": {
+              "extVersion": "1.0.0",
+              "minVersion": ""
+            },
+            "harmony": "x"
+          },
+          "mp": {
+            "weixin": "x",
+            "alipay": "x",
+            "toutiao": "x",
+            "baidu": "x",
+            "kuaishou": "x",
+            "jd": "x",
+            "harmony": "x",
+            "qq": "x",
+            "lark": "x"
+          },
+          "quickapp": {
+            "huawei": "x",
+            "union": "x"
+          }
+        },
+        "uni-app-x": {
+          "web": {
+            "safari": "x",
+            "chrome": "x"
+          },
+          "app": {
+            "android": {
+              "extVersion": "1.0.0",
+              "minVersion": ""
+            },
+            "ios": {
+              "extVersion": "1.0.0",
+              "minVersion": ""
+            },
+            "harmony": "x"
+          },
+          "mp": {
+            "weixin": "x"
+          }
+        }
+      }
+    }
+  }
+}

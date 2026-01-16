@@ -1,0 +1,154 @@
+@use "../mixins/mixins.scss" as *;
+
+@mixin full-style {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+@include b(lazy-load) {
+  position: relative;
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+  @include full-style;
+  // 保证组件被加载时有高度
+  min-height: 1rpx;
+  background: var(--var_bg_v59_color);
+
+  // background-color: var(--tn-color-gray-light);
+  color: var(--tn-color-gray);
+
+  /* 正常显示图片 start */
+  @include when(show-image) {
+    background-color: transparent;
+    color: transparent;
+  }
+
+  /* 正常显示图片 end */
+
+  /* 内容容器 start */
+  @include e(container) {
+    @include full-style;
+  }
+
+  /* 内容容器 end */
+
+  /* 正在加载 start */
+  @include e(loading) {
+    @include full-style;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--var_bg_v59_color);
+
+    // 添加淡入动画
+    opacity: 1;
+    // animation: loading-fade-in 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    &__icon {
+      animation: loading-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+      // font-size: 90rpx;
+      // animation: loading-icon-animation 3s linear infinite;
+    }
+
+    // 添加淡出动画类
+    @include when(hide) {
+      animation: loading-fade-out 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+    }
+
+  }
+
+  /* 正在加载 end */
+
+  /* 图片加载失败 start */
+  @include e(error) {
+    @include full-style;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 100rpx;
+  }
+
+  /* 图片加载失败 end */
+
+  /* 图片 start */
+  @include e(image) {
+    // 消除图片底部空白
+    display: block;
+    @include full-style;
+    opacity: 0;
+
+    /* 没有动画效果 */
+    @include when(no-animation) {
+      opacity: 1;
+    }
+
+    /* 有加载动画 */
+    @include when(animation) {
+      animation: show-image-animation 0.25s ease both;
+    }
+  }
+
+  /* 图片 end */
+}
+
+@keyframes loading-icon-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes show-image-animation {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+// 加载状态淡入动画
+@keyframes loading-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10rpx) scale(0.98);
+  }
+  
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// 加载状态淡出动画
+@keyframes loading-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  
+  to {
+    opacity: 0;
+    transform: translateY(-10rpx) scale(0.98);
+  }
+}
+// 加载图标脉冲动画
+@keyframes loading-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}

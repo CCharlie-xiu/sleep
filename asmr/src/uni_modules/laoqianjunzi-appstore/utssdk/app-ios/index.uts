@@ -1,0 +1,59 @@
+import {
+	SKStoreReviewController
+} from 'StoreKit';
+
+import { UTSiOS } from 'DCloudUTSFoundation';
+import { callbackOptions,Results,URLOptions } from '../interface.uts'
+export function openAppStore(options: callbackOptions){
+	try{
+		if (UTSiOS.available("iOS 10.3, *")) {
+			SKStoreReviewController.requestReview()
+			const ret : Results = {
+				code: 1,
+				data: "成功",
+				msg: "已打开评分"
+			}
+			options.success?.(ret);
+		}else{
+			const ret : Results = {
+				code: 0,
+				data: "失败",
+				msg: "版本不够"
+			}
+			options.fail?.(ret);
+		}
+	} catch(err){
+		const ret : Results = {
+			code: 0,
+			data: "异常",
+			msg: "插件错误"
+		}
+		options.fail?.(ret);
+		console.log(":::",err);
+	}
+	options.complete?.();
+	
+}
+export  function openAppStoreURL(options: URLOptions) {
+    
+    let url= "https://apps.apple.com/app/"+options.appid;
+    let webUrl = URL(string = url);
+    let testStatus = UIApplication.shared.canOpenURL(webUrl!);
+    if (testStatus) {
+         UIApplication.shared.openURL(webUrl!)
+		 const ret : Results = {
+		 	code: 1,
+		 	data: "成功",
+		 	msg: "已打开评分"
+		 }
+		 options.success?.(ret);
+    }else{
+		const ret : Results = {
+			code: 0,
+			data: "失败",
+			msg: "打开失败"
+		}
+		options.fail?.(ret);
+	};
+	options.complete?.();
+}

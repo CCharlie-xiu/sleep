@@ -1,0 +1,87 @@
+/* 页面背景色 */
+.page-bg-color{
+	background: var(--var_page_bg_color);
+}
+/* 主题色 */
+$min-theme: 1;
+$max-theme: 4;
+// 计算循环次数
+$theme-steps: $max-theme - $min-theme + 1;
+// 使用 @for 循环生成样式
+@for $i from 0 through $theme-steps - 1 {
+  $ver: $min-theme + $i * 1;
+  .theme-color-v#{$ver} {
+    color: var(--var_v#{$ver}_color);
+  }
+  .theme-bgcolor-v#{$ver} {
+    background: var(--var_v#{$ver}_color);
+  }
+}
+
+/* 字体颜色 */
+$min-font: 1;
+$max-font: 90;
+// 计算循环次数
+$font-steps: $max-font - $min-font + 1;
+// 使用 @for 循环生成样式
+@for $i from 0 through $font-steps - 1 {
+  $ver: $min-font + $i * 1;
+  .font-color-v#{$ver} {
+    color: var(--var_font_v#{$ver}_color);
+  }
+}
+
+/* 边框颜色 */
+$min-border: 1;
+$max-border: 18;
+// 计算循环次数
+$border-steps: $max-border - $min-border + 1;
+// 使用 @for 循环生成样式
+@for $i from 0 through $border-steps - 1 {
+  $ver: $min-border + $i * 1;
+  .border-color-v#{$ver} {
+    border: 2rpx solid var(--var_border_v#{$ver}_color);
+  }
+}
+
+/* icon颜色 */
+$min-icon: 1;
+$max-icon: 22;
+// 计算循环次数
+$icon-steps: $max-icon - $min-icon + 1;
+// 使用 @for 循环生成样式
+@for $i from 0 through $icon-steps - 1 {
+  $ver: $min-icon + $i * 1;
+  .icon-color-v#{$ver} {
+    color: var(--var_icon_v#{$ver}_color);
+  }
+  .icon-bgcolor-v#{$ver} {
+    background: var(--var_icon_v#{$ver}_color);
+  }
+}
+
+/* 背景颜色 */
+$min-bg: 1;
+$max-bg: 74;
+// 计算循环次数
+$bg-steps: $max-bg - $min-bg + 1;
+// 使用 @for 循环生成样式
+@for $i from 0 through $bg-steps - 1 {
+  $ver: $min-bg + $i * 1;
+  .bg-color-v#{$ver} {
+    background: var(--var_bg_v#{$ver}_color);
+  }
+}
+
+/* 背景边框颜色 */
+$min-border-bg: 1;
+$max-border-bg: 3;
+// 计算循环次数
+$border-bg-steps: $max-border-bg - $min-border-bg + 1;
+// 使用 @for 循环生成样式
+@for $i from 0 through $border-bg-steps - 1 {
+  $ver: $min-border-bg + $i * 1;
+  .border-bg-color-v#{$ver} {
+    background-image: var(--var_border_bg_v#{$ver}_color);
+  }
+}

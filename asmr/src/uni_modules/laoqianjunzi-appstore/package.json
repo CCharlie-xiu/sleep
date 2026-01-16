@@ -1,0 +1,75 @@
+{
+    "id": "laoqianjunzi-appstore",
+    "displayName": "苹果 应用内打开AppStore评分 、浏览器打开AppStore应用详情",
+    "version": "1.0.0",
+    "description": "跳转到AppStore评分,有两种方法： 1，通用方式通过App内部打开网页形式，跳转到AppStore编辑评论，可评分，可评论。 优点：方便，快捷，不受系统版本限制，目前最常用的方式。 缺点：内部网",
+    "keywords": [
+        "苹果、IOS、AppStore、评分"
+    ],
+    "repository": "",
+    "engines": {
+        "HBuilderX": "^3.6.8"
+    },
+    "dcloudext": {
+        "type": "uts",
+        "sale": {
+            "regular": {
+                "price": "0.00"
+            },
+            "sourcecode": {
+                "price": "0.00"
+            }
+        }
+    },
+    "uni_modules": {
+        "dependencies": [],
+        "encrypt": [],
+        "platforms": {
+            "cloud": {
+                "tcb": "u",
+                "aliyun": "u",
+                "alipay": "u"
+            },
+            "client": {
+                "Vue": {
+                    "vue2": "y",
+                    "vue3": "y"
+                },
+                "App": {
+                    "app-android": "n",
+                    "app-ios": "y",
+                    "app-harmony": "n"
+                },
+                "H5-mobile": {
+                    "Safari": "n",
+                    "Android Browser": "n",
+                    "微信浏览器(Android)": "n",
+                    "QQ浏览器(Android)": "n"
+                },
+                "H5-pc": {
+                    "Chrome": "n",
+                    "IE": "n",
+                    "Edge": "n",
+                    "Firefox": "n",
+                    "Safari": "n"
+                },
+                "小程序": {
+                    "微信": "n",
+                    "阿里": "n",
+                    "百度": "n",
+                    "字节跳动": "n",
+                    "QQ": "n",
+                    "钉钉": "n",
+                    "快手": "n",
+                    "飞书": "n",
+                    "京东": "n"
+                },
+                "快应用": {
+                    "华为": "n",
+                    "联盟": "n"
+                }
+            }
+        }
+    },
+    "name": "苹果 应用内打开AppStore评分 、浏览器打开AppStore应用详情"
+}

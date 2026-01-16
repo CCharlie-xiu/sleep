@@ -1,0 +1,17 @@
+export type Results = {
+	code : number,
+	data : string | null,
+	msg : string,
+}
+
+export type callbackOptions = {
+    success?: (res: Results) => void;
+    fail?: (res: Results) => void;
+    complete?: () => void;
+};
+export type URLOptions = {
+	appid:string,
+    success?: (res: Results) => void;
+    fail?: (res: Results) => void;
+    complete?: () => void;
+};

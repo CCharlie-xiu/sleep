@@ -1,0 +1,43 @@
+{
+	"easycom": {
+		"custom": {
+			"^tn-(.*)-(item|group)$": "@/uni_modules/tuniaoui-vue3/components/$1/src/$1-$2.vue",
+			"^tn-(.*)": "@/uni_modules/tuniaoui-vue3/components/$1/src/$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "",
+		// #ifdef MP-WEIXIN || MP-KUAISHOU
+		"navigationStyle": "custom",
+		// #endif
+		"navigationBarBackgroundColor": "#130e22",
+		"backgroundColor": "#130e22"
+		// #ifndef MP-WEIXIN
+		,
+		"transparentTitle": "always"
+		// #endif
+		// #ifdef APP-PLUS
+		,
+		"scrollIndicator": "none"
+		// #endif
+	}
+	// #ifdef MP-KUAISHOU
+	,
+	"enableShare": true
+	// #endif
+}
