@@ -1,163 +1,110 @@
 <template>
-  <view class="app rela flex flex-col h-100" :style="{ background: currentBg, transition: 'background 0.6s' }">
-    <view class="top-hint text-center font-size-10 pt-16" style="color: var(--text-sub); letter-spacing: 3px">
-      上下滑动切换声音
+  <view class="app" :style="{ '--bg-color': currentBg, '--accent-color': currentAccent }">
+    <view class="w-full min-h-168" :style="{ height: 'calc(var(--nav-bar-height))' }">1</view>
+    <view class="top-hint text-center fs-20 pt-32">上下滑动切换声音</view>
+
+    <view :class="['countdown-container absolute top-290 flex items-center z-10', { show: timerVisible }]">
+      <text class="countdown-time fs-104">{{ countdownTimeDisplay }}</text>
+      <text class="countdown-label fs-22">REMAINING TIME</text>
     </view>
 
-    <view
-      :class="['countdown-container abso flex flex-col items-center z-10', { show: timerVisible }]"
-      style="top: 145px; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.5s ease; pointer-events: none"
-    >
-      <text class="countdown-time font-size-52 font-weight-800" style="color: var(--text-main); font-variant-numeric: tabular-nums; letter-spacing: -1px">
-        {{ countdownTimeDisplay }}
-      </text>
-      <text class="countdown-label font-size-11" style="color: var(--accent-color); letter-spacing: 3px; margin-top: -2px; transition: color 0.6s">
-        REMAINING TIME
-      </text>
-    </view>
-
-    <view class="recommend-section mt-18">
-      <view class="recommend-title font-size-13 mb-10 px-20" style="color: var(--text-sub)">为你推荐</view>
-      <view class="horizational overflow-auto h-72 flex items-end px-20" style="scrollbar-width: none">
-        <view class="horizontal-scroll flex" style="gap: 12px; scrollbar-width: none">
+    <view class="mt-18">
+      <view class="recommend-title fs-26 mb-20 px-40">为你推荐</view>
+      <view class="horizational h-144 flex px-40">
+        <view class="horizontal-scroll flex">
           <view
             v-for="(category, index) in recommendList"
             :key="index"
-            :class="['recommend-card flex items-end h-56 p-10', { active: activeCategory === index }]"
-            style="flex: 0 0 145px; background: var(--card-bg); border-radius: 60% 60% 20% 20% / 20% 60% 20% 60%; transition: all 0.3s ease-in-out; gap: 8px"
+            :class="['recommend-card flex h-112 p-10', { active: activeCategory === index }]"
             @click="handleCategoryClick(index, category)"
           >
-            <view class="card-icon w-45 h-56 flex-shrink-0 flex items-center justify-center font-size-20" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; background: linear-gradient(to top, transparent, #f0f8ff 30%, #f0f8ff)">
-              {{ getCategoryIcon(index) }}
-            </view>
-            <view class="card-text font-size-14" style="color: var(--text-main); line-height: 56px">{{ category.name }}</view>
+            <view class="card-icon w-90 h-112 flex items-center justify-center fs-40">{{ getCategoryIcon(index) }}</view>
+            <view class="card-text fs-28">{{ category.name }}</view>
           </view>
         </view>
       </view>
     </view>
 
-    <view class="info-panel mt-60 px-30" style="pointer-events: none">
+    <view class="info-panel mt-64 px-60">
       <text :style="{ color: currentAccent, transition: 'color 0.6s' }">● 正在播放</text>
       <view
-        :class="['current-name font-size-48 font-weight-800 fade-text', textAnimationState.nameClass]"
-        style="color: var(--text-sub); transition-duration: 0.35s"
+        :class="['current-name fs-96', 'fade-text', textAnimationState.nameClass]"
         ref="curNameRef"
       >
         {{ currentSound?.name || '' }}
       </view>
       <view
-        :class="['current-desc font-size-13 fade-text', textAnimationState.descClass]"
-        style="margin-top: 6px; color: var(--text-sub); max-width: 240px; line-height: 1.4; transition-duration: 0.35s; transition-delay: 0.08s"
+        :class="['current-desc fs-26 mt-12', 'fade-text', textAnimationState.descClass]"
         ref="curDescRef"
       >
         {{ currentSound?.desc || '' }}
       </view>
     </view>
 
-    <view
-      class="list-viewport flex justify-end pr-20 h-520 mt-20"
-      style="mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)"
-      ref="listViewportRef"
-      @touchstart="handleTouchStart"
-      @touchend="handleTouchEnd"
-    >
-      <view class="sound-list w-85" style="pointer-events: auto; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform" ref="soundListRef">
+    <view class="list-viewport flex pr-20 h-720" ref="listViewportRef" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
+      <view class="sound-list" ref="soundListRef" :style="{ transform: `translateY(${listTransform}px)` }">
         <view
           v-for="(sound, index) in sounds"
           :key="index"
           :class="[
-            'sound-item flex items-center mb-14 rela',
+            'sound-item rd-24 py-24 px-30 flex items-center mb-28 relative',
             {
               active: index === currentIndex,
               preactive: index === currentIndex - 1,
               nextactive: index === currentIndex + 1,
             },
           ]"
-          :style="index === currentIndex ? { backgroundImage: `url(${sound.imgUrl})`, background: 'rgba(255,255,255,0.12)', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', opacity: 1, transform: 'scale(1.05)', border: '1px solid var(--accent-color)', color: '#fff', right: '20px' } : { background: 'var(--card-bg)', opacity: 0.25, transform: 'scale(0.92)' }"
-          style="border-radius: 12px; padding: 12px 15px; gap: 12px; transition: 0.45s"
+          :style="index === currentIndex ? { backgroundImage: `url(${sound.imgUrl})` } : {}"
           @click="handleItemClick(index)"
         >
-          <view class="vinyl w-38 h-38 flex justify-center items-center border-radius-50per" style="background: #111"></view>
-          <view class="title font-size-14">{{ String(index + 1).padStart(2, '0') }} {{ sound.name }}</view>
-          <view class="wave-view flex-1 h-18 flex items-center" style="gap: 3px">
-            <span
+          <view class="vinyl w-76 h-76 flex items-center justify-center"></view>
+          <view class="title px-12">{{ String(index + 1).padStart(2, '0') }} {{ sound.name }}</view>
+          <view class="wave-view">
+            <view
               v-for="(wave, waveIndex) in getWaveHeights(index)"
               :key="waveIndex"
-              class="flex-1"
-              :style="{ height: wave, background: index === currentIndex ? 'var(--accent-color)' : 'rgba(255,255,255,0.2)', transition: '0.3s' }"
-            ></span>
+              class="wave-bar"
+              :style="{ height: wave }"
+            ></view>
           </view>
         </view>
       </view>
     </view>
 
-    <view class="bottom-controls abso left-0 right-0 bottom-40 flex justify-center items-center">
-      <view class="setting-bar-left flex flex-col items-center gap-20 font-size-14 abso bottom-0" style="right: 25px; color: var(--text-sub)">
-        <view class="timer-badge font-size-10" style="color: var(--text-sub); letter-spacing: 1px">甜菜.风铃科技™</view>
+    <view class="bottom-controls absolute bottom-80 flex items-center justify-center left-0 right-0">
+      <view class="setting-bar-left">
+        <view class="timer-badge"><!-- 甜菜.风铃科技™ --></view>
       </view>
 
-      <view
-        :class="['play-btn w-68 h-68 flex justify-center items-center border-radius-50per', { playing: isPlaying }]"
-        style="background: var(--accent-color); box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: transform 0.2s, background 0.6s"
-        @click="handlePlayClick"
-      >
+      <view :class="['play-btn w-136 h-136 flex items-center justify-center', { playing: isPlaying }]" @click="handlePlayClick">
         <view class="play-icon"></view>
         <view class="pause-icon"></view>
       </view>
 
-      <view class="setting-bar abso bottom-0 flex flex-col items-center gap-12 w-80" style="left: 25px">
-        <view
-          class="timer-container rela w-30 h-180 flex justify-center"
-          style="touch-action: none"
-          ref="timerContainerRef"
-          @touchstart="handleTimerStart"
-          @touchmove="handleTimerMove"
-          @touchend="handleTimerEnd"
-        >
-          <view
-            class="timer-tooltip abso"
-            ref="timerTooltipRef"
-            :style="{ bottom: `${timerProgressPercent}%`, transform: 'translateY(50%)', right: '-68px', background: 'var(--accent-color)', color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', transition: 'bottom 0.3s cubic-bezier(0.25,0.1,0.25,1), background 0.6s' }"
-          >
-            {{ timerTooltipText }}
+      <view class="setting-bar absolute left-0 bottom-0 flex w-160 items-center">
+        <view class="timer-container" ref="timerContainerRef" @touchstart="handleTimerStart" @touchmove="handleTimerMove" @touchend="handleTimerEnd">
+          <view class="timer-tooltip" ref="timerTooltipRef">{{ timerTooltipText }}</view>
+          <view class="timer-track">
+            <view class="timer-progress" ref="timerProgressRef" :style="{ height: `${timerProgressPercent}%` }"></view>
           </view>
-          <view class="timer-track w-6 h-100 rela overflow-hidden border-radius-10" style="background: rgba(255,255,255,0.1)">
-            <view
-              class="timer-progress abso bottom-0 w-100"
-              ref="timerProgressRef"
-              :style="{ height: `${timerProgressPercent}%`, background: 'linear-gradient(to top, rgba(255,255,255,0.1), var(--accent-color))', transition: 'height 0.3s cubic-bezier(0.25,0.1,0.25,1)' }"
-            ></view>
-          </view>
-          <view
-            class="timer-handle abso w-20 h-20 border-radius-50per z-10"
-            ref="timerHandleRef"
-            :style="{ left: '50%', bottom: `${timerProgressPercent}%`, transform: 'translate(-50%, 50%)', background: '#fff', border: '4px solid #111', boxShadow: '0 2px 8px rgba(0,0,0,0.5)', transition: 'bottom 0.3s cubic-bezier(0.25,0.1,0.25,1)' }"
-          ></view>
+          <view class="timer-handle" ref="timerHandleRef" :style="{ bottom: `${timerProgressPercent}%` }"></view>
         </view>
-        <view class="timer-badge font-size-10 mt-12" style="color: var(--text-sub); letter-spacing: 1px" ref="timerBadgeRef">{{ timerBadgeText }}</view>
+        <view class="timer-badge" ref="timerBadgeRef">{{ timerBadgeText }}</view>
       </view>
     </view>
 
-    <view
-      class="momentBackText abso h-100v w-200 flex justify-center"
-      style="right: -60px; text-align: center; font-size: 120px; font-weight: 600; user-select: none; pointer-events: none; color: var(--text-sub); letter-spacing: 1px; margin-bottom: 12px; writing-mode: vertical-rl; text-orientation: upright; -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to left, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 100%)"
-      ref="momentBackTextRef"
-    >
-      <text
+    <view class="momentBackText" ref="momentBackTextRef">
+      <view
         v-for="(char, idx) in momentBackTextChars"
         :key="idx"
-        class="moment-char block"
-        :style="{ '--char-index': idx, opacity: 0, transform: 'translateX(60px)', transition: 'opacity 0.1s ease, transform 0.6s cubic-bezier(0.4,0,0.2,1)' }"
+        class="moment-char"
+        :style="{ animationDelay: `${idx * 0.1}s` }"
       >
         {{ char }}
-      </text>
+      </view>
     </view>
-    <view
-      :class="['blur-bg-container abso overflow-hidden z-2', { show: hasBackground }]"
-      style="top: -10%; left: -10%; width: 120%; height: 120%; transition: opacity 1.5s ease; opacity: 0"
-      ref="blurContainerRef"
-    >
-      <image :src="currentSound?.imgUrl || ''" class="blur-bg w-100 h-100" mode="aspectFill"></image>
+    <view :class="['blur-bg-container', { show: hasBackground }]" ref="blurContainerRef">
+      <image :src="currentSound?.imgUrl || ''" class="blur-bg" mode="aspectFill"></image>
     </view>
   </view>
 </template>
@@ -207,6 +154,7 @@ const timerProgressPercent = ref(0)
 const timerTooltipText = ref('关闭')
 const timerBadgeText = ref('定时关闭')
 const hasBackground = ref(false)
+const listTransform = ref(0)
 
 // 文本动画状态
 const textAnimationState = ref({
@@ -245,6 +193,7 @@ const handleCategoryClick = (index, category) => {
 
   if (wasActive) {
     // 返回全部列表
+    activeCategory.value = null
     updateSounds(allList)
     momentBackTextChars.value = []
     return
@@ -255,6 +204,7 @@ const handleCategoryClick = (index, category) => {
   updateSounds(category.keyvalue)
   // 显示背景文字
   momentBackTextChars.value = category.name.split('')
+  console.log(momentBackTextChars.value)
 }
 
 // 处理列表项点击
@@ -367,17 +317,10 @@ const updateTimerUI = (mins) => {
 
 // 更新列表状态
 const updateListState = () => {
-  if (!soundListRef.value) return
-
   const ITEM_HEIGHT = 78
   const CENTER_OFFSET = 2
   const offset = (currentIndex.value - CENTER_OFFSET) * ITEM_HEIGHT
-
-  // 在 uni-app 中，需要通过 $el 访问 DOM
-  const listEl = soundListRef.value.$el || soundListRef.value
-  if (listEl) {
-    listEl.style.transform = `translateY(${-offset}px)`
-  }
+  listTransform.value = -offset
 
   // 更新背景图片
   if (blurContainerRef.value && currentSound.value) {
@@ -393,12 +336,6 @@ const updateListState = () => {
 const update = () => {
   const s = currentSound.value
   if (!s) return
-
-  // 更新主题颜色
-  if (typeof document !== 'undefined') {
-    document.documentElement.style.setProperty('--bg-color', s.bg)
-    document.documentElement.style.setProperty('--accent-color', s.accent)
-  }
 
   // 更新文本动画状态
   textAnimationState.value = {
@@ -451,78 +388,322 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-:root {
+.app {
   --bg-color: #2d1b1b;
   --accent-color: #ff8a65;
   --text-main: rgba(255, 255, 255, 0.65);
   --text-sub: rgba(255, 255, 255, 0.55);
   --card-bg: rgba(255, 255, 255, 0.08);
   --transition: 0.6s;
-}
-
-.app {
-  height: calc(100vh - var(--nav-bar-height));
+  
+  height: calc(100vh);
+  background: var(--bg-color);
+  transition: background var(--transition);
+  display: flex;
+  flex-direction: column;
+  position: relative;
   z-index: 0;
+  overflow: hidden;
 }
 
-.countdown-container.show {
-  opacity: 1 !important;
+/* 顶部倒计时区 */
+.countdown-container {
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+
+  &.show {
+    opacity: 1;
+  }
 }
 
-.horizational::-webkit-scrollbar,
-.horizontal-scroll::-webkit-scrollbar {
-  display: none;
+.countdown-time {
+  fs-weight: 800;
+  color: var(--text-main);
+  fs-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
 }
 
-.recommend-card.active {
-  transform: scale(1.05);
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40% !important;
+.countdown-label {
+  color: var(--accent-color);
+  letter-spacing: 3px;
+  margin-top: -2px;
+  transition: color var(--transition);
+}
+
+/* 顶部提示 */
+.top-hint {
+  color: var(--text-sub);
+  letter-spacing: 3px;
+}
+
+.recommend-title {
+  color: var(--text-sub);
+}
+
+.horizational {
+  overflow: auto;
+  align-items: flex-end;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.horizontal-scroll {
+  gap: 12px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.recommend-card {
+  flex: 0 0 145px;
+  background: var(--card-bg);
+  border-radius: 60% 60% 20% 20% / 20% 60% 20% 60%;
+  align-items: flex-end;
+  gap: 8px;
+  transition: all 0.3s ease-in-out;
+
+  &.active {
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+.card-icon {
+  flex-shrink: 0;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  background: linear-gradient(to top, transparent, #f0f8ff 30%, #f0f8ff);
+}
+
+.card-text {
+  color: var(--text-main);
+  line-height: 56px;
+}
+
+/* 信息区 */
+.info-panel {
+  pointer-events: none;
+}
+
+.current-name {
+  font-weight: 800;
+  color: var(--text-sub);
+  transition-duration: 0.35s;
+}
+
+.current-desc {
+  color: var(--text-sub);
+  max-width: 240px;
+  line-height: 1.4;
+  transition-duration: 0.35s;
+  transition-delay: 0.08s;
+}
+
+/* 声音列表 */
+.list-viewport {
+  justify-content: flex-end;
+  transform: translateY(-40px);
+  mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+.sound-list {
+  width: 85%;
+  pointer-events: auto;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .sound-item {
+  background: var(--card-bg);
+  opacity: 0.25;
+  transform: scale(0.92);
+  transition: 0.45s;
+
+  &.active {
+    opacity: 1;
+    transform: scale(1.05);
+    border: 1px solid var(--accent-color);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    right: 20px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+
   &.preactive {
-    transform: scale(1) !important;
-    right: 12px !important;
+    transform: scale(1);
+    right: 12px;
   }
 
   &.nextactive {
-    opacity: 0.8 !important;
-    transform: scale(1) !important;
-    right: 12px !important;
+    opacity: 0.8;
+    transform: scale(1);
+    right: 12px;
   }
 }
 
-.vinyl::after {
-  content: '';
-  width: 8px;
-  height: 8px;
+.vinyl {
+  background: #111;
+  border-radius: 50%;
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    transition: background 0.6s;
+  }
+}
+
+.wave-view {
+  flex: 1;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .wave-bar {
+    flex: 1;
+    min-height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    transition: 0.3s;
+    margin-right: 3px;
+    border-radius: 1px;
+    
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.active .wave-view .wave-bar {
+  background: var(--accent-color);
+}
+
+.play-btn {
   background: var(--accent-color);
   border-radius: 50%;
-  transition: background 0.6s;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, background 0.6s;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.playing {
+    .play-icon {
+      display: none;
+    }
+
+    .pause-icon {
+      display: block;
+    }
+  }
 }
 
-.play-btn:active {
-  transform: scale(0.9);
+.setting-bar {
+  flex-direction: column;
+  gap: 12px;
 }
 
-.play-btn.playing .play-icon {
-  display: none;
-}
-
-.play-btn.playing .pause-icon {
-  display: block;
-}
-
-.timer-tooltip::after {
-  content: '';
+.setting-bar-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40rpx;
+  font-size: 28rpx;
+  color: var(--text-sub);
   position: absolute;
-  left: -5px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-right: 6px solid var(--accent-color);
-  transition: border-right-color 0.6s;
+  right: 50rpx;
+  bottom: 0rpx;
+}
+
+.timer-container {
+  position: relative;
+  width: 60rpx;
+  height: 360rpx;
+  display: flex;
+  justify-content: center;
+  touch-action: none;
+}
+
+.timer-track {
+  width: 12rpx;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-progress {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.1), var(--accent-color));
+  transition: height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.timer-handle {
+  position: absolute;
+  left: 50%;
+  bottom: 0%;
+  width: 40rpx;
+  height: 40rpx;
+  background: #fff;
+  border: 8rpx solid #111;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: bottom 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.timer-tooltip {
+  position: absolute;
+  right: -136rpx;
+  bottom: 0%;
+  background: var(--accent-color);
+  color: #fff;
+  padding: 12rpx 24rpx;
+  border-radius: 8px;
+  font-size: 24rpx;
+  font-weight: bold;
+  transform: translateY(50%);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: bottom 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), background 0.6s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: -20rpx;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 20rpx solid transparent;
+    border-bottom: 20rpx solid transparent;
+    border-right: 24rpx solid var(--accent-color);
+    transition: border-left-color 0.6s;
+  }
+}
+
+.timer-badge {
+  font-size: 20rpx;
+  color: var(--text-sub);
+  letter-spacing: 4rpx;
+  margin-top: 24rpx;
 }
 
 .fade-text {
@@ -530,7 +711,7 @@ onUnmounted(() => {
 
   &.out {
     opacity: 0;
-    transform: translateX(-152px);
+    transform: translateX(-304rpx);
   }
 
   &.in {
@@ -540,13 +721,40 @@ onUnmounted(() => {
 
   &.enter {
     opacity: 0;
-    transform: translateX(152px);
+    transform: translateX(304rpx);
   }
 }
 
-.moment-char:nth-child(n) {
-  animation: fadeInChar 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: calc(var(--char-index, 0) * 0.1s);
+.momentBackText {
+  position: absolute;
+  height: 100vh;
+  width: 400rpx;
+  right: -120rpx;
+  text-align: center;
+  font-size: 240rpx;
+  font-weight: 600;
+  user-select: none;
+  pointer-events: none;
+  color: var(--text-sub);
+  letter-spacing: 2rpx;
+  margin-bottom: 24rpx;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display: flex;
+  justify-content: center;
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 100%);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+
+  .moment-char {
+    display: block;
+    opacity: 0;
+    transform: translateX(120rpx);
+    animation: fadeInChar 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
 }
 
 @keyframes fadeInChar {
@@ -556,8 +764,32 @@ onUnmounted(() => {
   }
 }
 
-.blur-bg-container.show {
-  opacity: 1 !important;
+.blur-bg-container {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  z-index: -2;
+  overflow: hidden;
+  transition: opacity 1.5s ease;
+  opacity: 0;
+
+  &.show {
+    opacity: 1;
+  }
+}
+
+.blur-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 20%, rgba(0, 0, 0, 0.2) 32%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 20%, rgba(0, 0, 0, 0.2) 32%, rgba(0, 0, 0, 0) 100%);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
 }
 
 /* 图标 */
@@ -565,17 +797,17 @@ onUnmounted(() => {
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 12px 0 12px 20px;
+  border-width: 24rpx 0 24rpx 40rpx;
   border-color: transparent transparent transparent #fff;
-  margin-left: 5px;
+  margin-left: 10rpx;
 }
 
 .pause-icon {
   display: none;
-  width: 18px;
-  height: 24px;
-  border-left: 6px solid #fff;
-  border-right: 6px solid #fff;
+  width: 36rpx;
+  height: 48rpx;
+  border-left: 12rpx solid #fff;
+  border-right: 12rpx solid #fff;
 }
 </style>
 

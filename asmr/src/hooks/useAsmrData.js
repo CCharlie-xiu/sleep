@@ -16,6 +16,14 @@ export function useAsmrData() {
 
   // 全部声音列表
   const allList = [
+    { name: '雨林', desc: '湿润宁静的森林雨声，细雨落叶间，洗涤心灵烦躁感', bg: '#0F2A1D', accent: '#6FCF97', key: 'birds', imgUrl: 'images/Gemini_Generated_Image_g9www3g9www3g9ww.png' },
+    { name: '深海', desc: '低频安抚深度睡眠，海水涌动声，仿佛潜入宁静海底', bg: '#050B1E', accent: '#1BCEDB', key: 'chocolate', imgUrl: 'images/Gemini_Generated_Image_slrmudslrmudslrm.png' },
+    { name: '极光', desc: '北欧夜空冥想，星光闪烁下，心灵漂浮于极光之中', bg: '#0E1028', accent: '#9BFFEC', key: 'ear', imgUrl: 'images/Gemini_Generated_Image_d5q93xd5q93xd5q9.png' },
+    { name: '风铃', desc: '清脆悦耳的风铃声，微风拂过窗前，带来夏日清凉感', bg: '#101820', accent: '#FFD166', key: 'paper', imgUrl: 'images/Gemini_Generated_Image_25jhe25jhe25jhe2.png' },
+    { name: '鸟鸣', desc: '清晨自然鸟叫声，阳光洒落林间，唤醒轻柔的早晨', bg: '#1A2E3B', accent: '#7ED957', key: 'birds', imgUrl: 'images/Gemini_Generated_Image_g9www3g9www3g9ww.png' },
+    { name: '溪流', desc: '潺潺溪水声，山间流水奔流，沁人心脾静心安神', bg: '#081A2F', accent: '#7ABEFF', key: 'paper', imgUrl: 'images/Gemini_Generated_Image_slrmudslrmudslrm.png' },
+    { name: '虫鸣', desc: '夏日昆虫鸣叫，夜晚静谧中，虫声伴随入眠深处', bg: '#070B18', accent: '#FF8C42', key: 'birds', imgUrl: 'images/Gemini_Generated_Image_g9www3g9www3g9ww.png' },
+    { name: '海浪', desc: '宁静海滩波浪声，海水轻拍礁石，心随浪花平静', bg: '#081226', accent: '#4FC3F7', key: 'chocolate', imgUrl: 'images/Gemini_Generated_Image_d5q93xd5q93xd5q9.png' },
     { name: '营火', desc: '温暖的木柴火焰声，轻轻劈啪响，带来冬夜温馨感', bg: '#2B1610', accent: '#FF7043', key: 'wind', imgUrl: 'images/Gemini_Generated_Image_d5q93xd5q93xd5q9.png' },
   ]
 
@@ -65,6 +73,14 @@ export function useAsmrData() {
 
   // 当前播放列表
   const sounds = ref([
+    { name: '雨林', desc: '湿润宁静的森林雨声，细雨落叶间，洗涤心灵烦躁感', bg: '#0F2A1D', accent: '#6FCF97', key: 'birds', imgUrl: 'images/Gemini_Generated_Image_g9www3g9www3g9ww.png' },
+    { name: '深海', desc: '低频安抚深度睡眠，海水涌动声，仿佛潜入宁静海底', bg: '#050B1E', accent: '#1BCEDB', key: 'chocolate', imgUrl: 'images/Gemini_Generated_Image_slrmudslrmudslrm.png' },
+    { name: '极光', desc: '北欧夜空冥想，星光闪烁下，心灵漂浮于极光之中', bg: '#0E1028', accent: '#9BFFEC', key: 'ear', imgUrl: 'images/Gemini_Generated_Image_d5q93xd5q93xd5q9.png' },
+    { name: '风铃', desc: '清脆悦耳的风铃声，微风拂过窗前，带来夏日清凉感', bg: '#101820', accent: '#FFD166', key: 'paper', imgUrl: 'images/Gemini_Generated_Image_25jhe25jhe25jhe2.png' },
+    { name: '鸟鸣', desc: '清晨自然鸟叫声，阳光洒落林间，唤醒轻柔的早晨', bg: '#1A2E3B', accent: '#7ED957', key: 'birds', imgUrl: 'images/Gemini_Generated_Image_g9www3g9www3g9ww.png' },
+    { name: '溪流', desc: '潺潺溪水声，山间流水奔流，沁人心脾静心安神', bg: '#081A2F', accent: '#7ABEFF', key: 'paper', imgUrl: 'images/Gemini_Generated_Image_slrmudslrmudslrm.png' },
+    { name: '虫鸣', desc: '夏日昆虫鸣叫，夜晚静谧中，虫声伴随入眠深处', bg: '#070B18', accent: '#FF8C42', key: 'birds', imgUrl: 'images/Gemini_Generated_Image_g9www3g9www3g9ww.png' },
+    { name: '海浪', desc: '宁静海滩波浪声，海水轻拍礁石，心随浪花平静', bg: '#081226', accent: '#4FC3F7', key: 'chocolate', imgUrl: 'images/Gemini_Generated_Image_d5q93xd5q93xd5q9.png' },
     { name: '营火', desc: '温暖的木柴火焰声，轻轻劈啪响，带来冬夜温馨感', bg: '#2B1610', accent: '#FF7043', key: 'wind', imgUrl: 'images/Gemini_Generated_Image_d5q93xd5q93xd5q9.png' },
   ])
 
